@@ -1,0 +1,20 @@
+sudo: required
+services:
+    - docker
+
+before_install:
+    - docker build -t geetanshjindal/dummy -f ./client/Dockerfile.dev ./client/
+script:
+    - docker run geetanshjindal/dummy npm test -- --watchAll=flase
+
+after_success:
+    - docker build -t geetanshjindal/multi-client ./client
+    - docker build -t geetanshjindal/multi-nginx ./nginx
+    - docker build -t geetanshjindal/multi-server ./server
+    - docker build -t geetanshjindal/multi-worker ./worker
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    - docker push geetanshjindal/multi-client
+    - docker push geetanshjindal/multi-nginx
+    - docker push geetanshjindal/multi-server
+    - docker push geetanshjindal/multi-worker
+     
